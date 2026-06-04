@@ -67,7 +67,7 @@ python cviceni_01.py
 ```
 Pokud kód neskončí chybou NotImplementedError a vypíše požadované textové výstupy, máte vyhráno.
 
-🚀 Odevzdání úlohy
+## 🚀 Odevzdání úlohy
 
 Úloha se odevzdává automaticky pomocí systému GitHub Classroom.
 
