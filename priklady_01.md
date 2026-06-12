@@ -93,3 +93,29 @@ Pro každý z níže uvedených párů vektorů vypočítejte:
 4.7 Páry 1 a 2 mají stejné normy jako jiné páry, přesto se liší $d_E$. Proč nestačí znát pouze délku vektorů?
 
 ---
+
+## Část 5 – Matice vzdáleností
+
+Pro následující trojici vektorů sestavte matice vzdáleností. Použijte všechny tři metriky z Části 4.
+
+**Datová sada** (3 vzorky, 5 příznaků):
+
+| Vzorek | $x_1$ | $x_2$ | $x_3$ | $x_4$ | $x_5$ |
+|:------:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| $a$    |   2   |  −6   |   2   |   0   |   4   |
+| $b$    |   0   |  −4   |   8   |   3   |  −1   |
+| $c$    |   5   | −12   |   7   |  −5   |   4   |
+
+**Úkoly:**
+
+5.1 Vyplňte tři prázdné matice vzdáleností – pro $d_E$, $d_M$ a $d_C$:
+
+$$D_E = \begin{pmatrix} — & & \\ & — & \\ & & — \end{pmatrix} \qquad D_M = \begin{pmatrix} — & & \\ & — & \\ & & — \end{pmatrix} \qquad D_C = \begin{pmatrix} — & & \\ & — & \\ & & — \end{pmatrix}$$
+
+5.2 Ověřte, že každá matice je symetrická a hlavní diagonála obsahuje nuly. Proč to musí vždy platit?
+
+5.3 Který pár vzorků je nejpodobnější a který nejodlišnější? Závisí pořadí na volbě metriky?
+
+5.4 Vzorek $c$ má největší normu ze všech tří vzorků ($|\mathbf{c}| \approx 16.1$). Přesto je $d_C(\mathbf{a}, \mathbf{c})$ nejmenší Cosinovou vzdáleností v celé matici. Jak je to možné?
+
+5.5 Ověřte trojúhelníkovou nerovnost pro Euklidovskou vzdálenost: $d_E(\mathbf{a}, \mathbf{c}) \leq d_E(\mathbf{a}, \mathbf{b}) + d_E(\mathbf{b}, \mathbf{c})$.
