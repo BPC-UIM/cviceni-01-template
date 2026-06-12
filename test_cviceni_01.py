@@ -17,6 +17,7 @@ _/|_
 Description:
     Testing
 """
+import os
 import numpy as np
 import pytest
 from cviceni_01 import (
@@ -24,7 +25,7 @@ from cviceni_01 import (
     EuclideanDistance, ManhattanDistance, CosineCoeficient,
 )
 
-# --- Sdílená testovací data ---
+# --- Sdílená testovací data (bez CSV) ---
 DATA = np.array([
     [1.0, 2.0, 3.0],
     [4.0, 5.0, 6.0],
@@ -32,21 +33,26 @@ DATA = np.array([
     [2.0, 4.0, 6.0],
 ])
 
-# --- load_data ---
+DATASET = "All_Pokemon.csv"
+
+# --- load_data (přeskočeno, pokud dataset chybí) ---
+@pytest.mark.skipif(not os.path.exists(DATASET), reason="Dataset není přítomen")
 def test_load_data_returns_ndarray():
     """Testuje, zda funkce load_data vrací data jako numpy array."""
-    data, _ = load_data("All_Pokemon.csv")
+    data, _ = load_data(DATASET)
     assert isinstance(data, np.ndarray)
 
+@pytest.mark.skipif(not os.path.exists(DATASET), reason="Dataset není přítomen")
 def test_load_data_returns_header():
     """Testuje, zda funkce load_data vrací header jako seznam."""
-    data, header = load_data("All_Pokemon.csv")
+    data, header = load_data(DATASET)
     assert isinstance(header, list)
     assert len(header) == data.shape[1]
 
+@pytest.mark.skipif(not os.path.exists(DATASET), reason="Dataset není přítomen")
 def test_load_data_is_numeric():
     """Testuje, zda načtená data jsou numerická."""
-    data, _ = load_data("All_Pokemon.csv")
+    data, _ = load_data(DATASET)
     assert np.issubdtype(data.dtype, np.number)
 
 # --- Scaler ---
@@ -93,16 +99,27 @@ def test_manhattan_known_value():
     assert np.isclose(d, 7.0)
 
 def test_cosine_parallel_vectors():
-    """Testuje, zda CosineCoeficient vrací 0 pro paralelní vektory (úhel 0°)."""
+    """Testuje, zda CosineCoeficient vrací 1 pro paralelní vektory (úhel 0°)."""
     a = np.array([1.0, 2.0])
     b = np.array([2.0, 4.0])
-    assert np.isclose(CosineCoeficient().calculate(a, b), 0.0, atol=1e-9)
+    assert np.isclose(CosineCoeficient().calculate(a, b), 1.0, atol=1e-9)
+
+def test_cosine_opposite_vectors():
+    """Testuje, zda CosineCoeficient vrací -1 pro opačné vektory (úhel 180°)."""
+    a = np.array([1.0, 0.0])
+    b = np.array([-1.0, 0.0])
+    assert np.isclose(CosineCoeficient().calculate(a, b), -1.0, atol=1e-9)
 
 def test_cosine_perpendicular_vectors():
-    """Testuje, zda CosineCoeficient vrací 1 pro kolmice vektory (úhel 90°)."""
+    """Testuje, zda CosineCoeficient vrací 0 pro kolmé vektory (úhel 90°)."""
     a = np.array([1.0, 0.0])
     b = np.array([0.0, 1.0])
-    assert np.isclose(CosineCoeficient().calculate(a, b), 1.0, atol=1e-9)
+    assert np.isclose(CosineCoeficient().calculate(a, b), 0.0, atol=1e-9)
+
+def test_euclidean_symmetry():
+    """Testuje symetrii: d(a, b) == d(b, a)."""
+    a, b = np.array([1.0, 2.0]), np.array([4.0, 6.0])
+    assert np.isclose(EuclideanDistance().calculate(a, b), EuclideanDistance().calculate(b, a))
 
 # --- Distance matrix ---
 def test_distance_matrix_shape():
@@ -121,12 +138,23 @@ def test_distance_matrix_symmetric():
     assert np.allclose(dm, dm.T)
 
 # --- BasicStatistics assert validation ---
+# _autorun=False zabraňuje spuštění run() před ověřením assertů
 def test_basicstats_rejects_non_ndarray():
     """Testuje, zda BasicStatistics vyhazuje AssertionError pro ne-numpy array vstup."""
     with pytest.raises(AssertionError):
-        BasicStatistics([[1, 2], [3, 4]])
+        BasicStatistics([[1, 2], [3, 4]], _autorun=False)
 
 def test_basicstats_rejects_1d():
     """Testuje, zda BasicStatistics vyhazuje AssertionError pro 1D numpy array."""
     with pytest.raises(AssertionError):
-        BasicStatistics(np.array([1, 2, 3]))
+        BasicStatistics(np.array([1, 2, 3]), _autorun=False)
+
+def test_basicstats_rejects_string_array():
+    """Testuje, zda BasicStatistics vyhazuje AssertionError pro pole řetězců."""
+    with pytest.raises(AssertionError):
+        BasicStatistics(np.array([["a", "b"], ["c", "d"]]), _autorun=False)
+
+def test_basicstats_accepts_valid_data():
+    """Testuje, zda BasicStatistics přijme správná 2D numerická data bez výjimky."""
+    stats = BasicStatistics(DATA, _autorun=False)
+    assert stats.data is DATA

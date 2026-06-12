@@ -59,9 +59,10 @@ class BasicStatistics:
     """
     def __init__(
         self,
-        data: np.ndarray, 
-        header: list[str] | None = None
-    ) -> None:
+        data: np.ndarray,
+        header: list[str] | None = None,
+        _autorun: bool = True
+        ) -> None:
         """
         Inicializace třídy. Nejprve ověří integritu dat a následně automaticky
         spustí celou analytickou pipeline.
@@ -79,7 +80,8 @@ class BasicStatistics:
             self.header = [f"Sloupec {i}" for i in range(data.shape[1])]
 
         # Automatické spuštění celé analýzy hned při vytvoření objektu
-        self.run()
+        if _autorun:
+            self.run()
 
     def get_descriptive_stats(self) -> None:
         """
@@ -288,18 +290,18 @@ if __name__ == "__main__":
 
     try:
         # 1. Test načítání
-        data, header = load_data("All_Pokemon.csv")
-        print(f"Data úspěšně načtena. Tvar: {data.shape}")
+        dataset, header = load_data("All_Pokemon.csv")
+        print(f"Data úspěšně načtena. Tvar: {dataset.shape}")
 
         # 2. Test Statistiky
-        stats = BasicStatistics(data, header=header)
+        stats = BasicStatistics(dataset, header=header)
 
         # 3. Test Scaleru
-        scaler = Scaler(data)
+        scaler = Scaler(dataset)
         standardized_data = scaler.z_score()
 
         # 4. Test Vzdáleností
-        euclid = EuclideanDistance().create_distance_matrix(data)
+        euclid = EuclideanDistance().create_distance_matrix(dataset)
         print(f"Matice vzdáleností úspěšně vytvořena. Tvar: {euclid.shape}")
 
     except NotImplementedError as e:
