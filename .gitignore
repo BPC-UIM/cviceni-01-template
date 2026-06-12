@@ -218,12 +218,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-
-data/
-*.csv
-*.xlsx
-*.xls
-
 # Images, documents, and other large files
 *.png
 *.jpg
