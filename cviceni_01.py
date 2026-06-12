@@ -1,4 +1,24 @@
-import csv
+# -*- coding: utf-8 -*-
+
+"""
+Created on 12. 06. 2026 at 10:30:59
+
+Author: Richard Redina
+Email: 195715@vut.cz
+Affiliation:
+         International Clinical Research Center, Brno
+         Brno University of Technology, Brno
+GitHub: RicRedi
+
+(._.)
+ <|>
+_/|_
+
+Description:
+    Cvičení 1 Umělá inteligence v medicíně
+"""
+from abc import ABC, abstractmethod
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,7 +28,7 @@ import matplotlib.pyplot as plt
 # =========================================================================
 
 def load_data(
-    filepath: str = "echocardiogram.csv",
+    filepath: str = "All_Pokemon.csv",
 ) -> tuple[np.ndarray, list[str]]:
     """
     Úkol: Načtěte data ze souboru CSV. Můžete použít vestavěný modul 'csv' 
@@ -20,7 +40,11 @@ def load_data(
             - header (list[str]): Seznam názvů sloupců
     """
     # TODO: Zde doplňte kód pro načtení
-    # Hint pro Pandas: df = pd.read_csv(filepath); return df.to_numpy(), list(df.columns)
+    # Hint pro Pandas: df = pd.read_csv(filepath); return numerical_columns, list(df.columns)
+    # try:
+        # load data using pandas or csv
+    # except FileNotFoundError as e:
+        # print(f"Soubor nebyl nalezen: {e}")
     raise NotImplementedError("Funkce 'load_data' ještě nebyla implementována!")
 
 
@@ -34,7 +58,7 @@ class BasicStatistics:
     a vizualizaci datové sady.
     """
     def __init__(
-        self, 
+        self,
         data: np.ndarray, 
         header: list[str] | None = None
     ) -> None:
@@ -43,17 +67,17 @@ class BasicStatistics:
         spustí celou analytickou pipeline.
         """
         # --- ÚKOL PRO STUDENTY: VALIDACE VSTUPNÍCH DAT ---
-        assert  # Doplň podmínku na to, že vstupní data jsou typu numpy array
-        assert  # Doplň podmínku na počet dimenzí (musí být dim=2, tedy 2D tabulka)
-        assert  # Doplň podmínku na datový typ prvků (musí obsahovat čísla - int/float)
-        
+        # assert  Doplň podmínku na to, že vstupní data jsou typu numpy array
+        # assert  Doplň podmínku na počet dimenzí (musí být dim=2, tedy 2D tabulka)
+        # assert  Doplň podmínku na datový typ prvků (musí obsahovat čísla - int/float)
+
         self.data: np.ndarray = data
-        
+
         if header is not None:
             self.header: list[str] = header
         else:
             self.header = [f"Sloupec {i}" for i in range(data.shape[1])]
-            
+
         # Automatické spuštění celé analýzy hned při vytvoření objektu
         self.run()
 
@@ -82,7 +106,14 @@ class BasicStatistics:
         řádků, na kterých se nacházejí (Outliers_index). Výsledky unifikovaně vypište.
         """
         raise NotImplementedError("Metoda 'identify_outliers_iqr' ještě nebyla implementována!")
-  
+
+    def identify_nans(self) -> None:
+        """
+        Úkol: Projděte všechny sloupce. Spočítejte, kolik v nich je NaN hodnot (NaN_N)
+        a zjistěte indexy řádků, na kterých se nacházejí (NaN_index). Výsledky unifikovaně vypište.
+        """
+        raise NotImplementedError("Metoda 'identify_nans' ještě nebyla implementována!")
+
     def plot_histograms(self) -> None:
         """
         Úkol: Projděte všechny sloupce a pro každý z nich vygenerujte histogram.
@@ -98,17 +129,17 @@ class BasicStatistics:
         print(" CHOD ANALÝZY: ZÁKLADNÍ POPISNÉ STATISTIKY")
         print("="*50)
         self.get_descriptive_stats()
-        
+
         print("\n" + "="*50)
         print(" CHOD ANALÝZY: DETEKCE ODLEHLÝCH HODNOT (Z-SCORE)")
         print("="*50)
         self.identify_outliers_z()
-        
+
         print("\n" + "="*50)
         print(" CHOD ANALÝZY: DETEKCE ODLEHLÝCH HODNOT (IQR)")
         print("="*50)
         self.identify_outliers_iqr()
-        
+
         print("\n" + "="*50)
         print(" CHOD ANALÝZY: GENEROVÁNÍ HISTOGRAMŮ")
         print("="*50)
@@ -156,70 +187,126 @@ class Scaler:
 # III. VZDÁLENOSTI OBJEKTŮ
 # =========================================================================
 
-class Distance:
+class Distance(ABC):
     """
     Mateřská (bázová) třída pro výpočet vzdáleností mezi dvěma vektory (objekty).
     """
+    def __init__(self) -> None:
+        """
+        Inicializace třídy. Zde není potřeba žádný atribut, ale můžete si přidat, pokud chcete.
+        """
+    @property
+    @abstractmethod
+    def is_metric(self) -> bool:
+        """
+        Abstraktní vlastnost, která by měla být přepsána v každé dceřiné třídě.
+        Vrací: True pokud se jedná o metrickou vzdálenost, False jinak.
+        """
+        raise NotImplementedError("Tato vlastnost musí být implementována v dceřiné třídě!")
+    @abstractmethod
     def calculate(self, x: np.ndarray, y: np.ndarray) -> float:
         """
         Metoda, kterou musí každá dceřiná třída přepsat.
         """
         raise NotImplementedError("Tato metoda musí být implementována v dceřiné třídě!")
+    def create_distance_matrix(
+        self,
+        data: np.ndarray,
+        ) -> np.ndarray:
+        """
+        Úkol: Sestrojte čtvercovou matici vzdáleností tvaru (n_samples x n_samples).
+        Pro výpočet vzdálenosti je použita volaná podtřída (např. EuclideanDistance,
+        ManhattanDistance, CosineCoeficient). Vrací: Matice vzdáleností, kde element [i, j] obsahuje
+        vzdálenost mezi objekty i a j. Diagonální prvky (i, i) by měly být 0, protože vzdálenost
+        objektu k sobě samému je vždy 0.
+        """
+        # assert  Doplň podmínku na to, že vstupní data jsou typu numpy array
+        # assert  Doplň podmínku na počet dimenzí (musí být dim=2, tedy 2D tabulka)
+        # Create an empty distance matrix
+        # for i in range(number of samples):
+        #     for j in range(i+1, number of samples):
+        #         call self.calculate(x,y) to fill the distance matrix symmetrically
+        # return the distance matrix
+        raise NotImplementedError("Funkce 'create_distance_matrix' ještě nebyla implementována!")
 
 
 class EuclideanDistance(Distance):
+    """ Třída pro výpočet Euklidovské vzdálenosti mezi dvěma vektory.
+    """
+    def __init__(self) -> None:
+        """
+        Inicializace třídy. Zde není potřeba žádný atribut, ale můžete si přidat, pokud chcete."""
+
+    @property
+    def is_metric(self) -> bool:
+        """Vrací ____, protože Euklidovská vzdálenost _____ definici metriky."""
+        return None
+
     def calculate(self, x: np.ndarray, y: np.ndarray) -> float:
         """Úkol: Spočtěte Euklidovskou vzdálenost mezi 1D vektory x a y."""
         raise NotImplementedError("Metoda 'calculate' v EuclideanDistance nebyla implementována!")
 
 
 class ManhattanDistance(Distance):
+    """ Třída pro výpočet Manhattanské vzdálenosti mezi dvěma vektory.
+    """
+    def __init__(self) -> None:
+        """
+        Inicializace třídy. Zde není potřeba žádný atribut, ale můžete si přidat, pokud chcete.
+        """
+
+    @property
+    def is_metric(self) -> bool:
+        """Vrací ____, protože Manhattanská vzdálenost ________ definici metriky."""
+        return None
     def calculate(self, x: np.ndarray, y: np.ndarray) -> float:
         """Úkol: Spočtěte Manhattanskou vzdálenost mezi 1D vektory x a y."""
         raise NotImplementedError("Metoda 'calculate' v ManhattanDistance nebyla implementována!")
 
 
-class CosineDistance(Distance):
+class CosineCoeficient(Distance):
+    """ Třída pro výpočet Cosinového koeficientu mezi dvěma vektory.
+    """
+    def __init__(self) -> None:
+        """
+        Inicializace třídy. Zde není potřeba žádný atribut, ale můžete si přidat, pokud chcete."""
+
+    @property
+    def is_metric(self) -> bool:
+        """Vrací ____, protože Cosinový koeficient ________ definici metriky."""
+        return None
     def calculate(self, x: np.ndarray, y: np.ndarray) -> float:
-        """Úkol: Spočtěte Cosinovu vzdálenost (1 - Cosine Similarity) mezi 1D vektory x a y."""
-        raise NotImplementedError("Metoda 'calculate' v CosineDistance nebyla implementována!")
-
-
-def create_distance_matrix(data: np.ndarray, distance_metric: Distance) -> np.ndarray:
-    """
-    Úkol: Sestrojte čtvercovou matici vzdáleností tvaru (n_samples x n_samples).
-    Pro výpočet vzdálenosti mezi řádky použijte předaný objekt typu Distance.
-    """
-    raise NotImplementedError("Funkce 'create_distance_matrix' ještě nebyla implementována!")
+        """Úkol: Spočtěte Cosinový koeficient mezi 1D vektory x a y."""
+        raise NotImplementedError("Metoda 'calculate' v CosineCoeficient nebyla implementována!")
 
 
 # =========================================================================
-# MAIN BLOCK (Pro lokální testování studentů)
+# MAIN BLOCK (Pro lokální testování)
 # =========================================================================
 if __name__ == "__main__":
     print("--- Spouštím lokální testování studenta ---")
-    
+
     try:
         # 1. Test načítání
-        data, header = load_data("echocardiogram.csv")
+        data, header = load_data("All_Pokemon.csv")
         print(f"Data úspěšně načtena. Tvar: {data.shape}")
-        
+
         # 2. Test Statistiky
         stats = BasicStatistics(data, header=header)
-        
+
         # 3. Test Scaleru
         scaler = Scaler(data)
         standardized_data = scaler.z_score()
-        
+
         # 4. Test Vzdáleností
-        euclid = EuclideanDistance()
-        dist_matrix = create_distance_matrix(data, euclid)
-        print(f"Matice vzdáleností úspěšně vytvořena. Tvar: {dist_matrix.shape}")
-        
+        euclid = EuclideanDistance().create_distance_matrix(data)
+        print(f"Matice vzdáleností úspěšně vytvořena. Tvar: {euclid.shape}")
+
     except NotImplementedError as e:
         print(f"\n[INFO] Chycena výjimka: {e}")
         print("[INFO] To je v pořádku. Pokračujte v implementaci této metody.")
     except AssertionError:
-        print("\n[CHYBA] Validace selhala! Vaše vstupní data nesplňují podmínky (assert) ve třídě BasicStatistics.")
+        print("\n[CHYBA] Validace selhala! \
+            Vaše vstupní data nesplňují podmínky (assert) ve třídě BasicStatistics.")
     except Exception as e:
         print(f"\n[CHYBA] Neočekávaná chyba: {e}")
